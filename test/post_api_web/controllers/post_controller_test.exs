@@ -22,14 +22,14 @@ defmodule PostApiWeb.PostControllerTest do
   describe "index" do
     test "lists all posts", %{conn: conn} do
       conn = get(conn, ~p"/api/posts")
-      assert json_response(conn, 200)["data"] == []
+      assert json_response(conn, 200)["posts"] == []
     end
   end
 
   describe "create post" do
     test "renders post when data is valid", %{conn: conn} do
       conn = post(conn, ~p"/api/posts", post: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"id" => id} = json_response(conn, 201)["post"]
 
       conn = get(conn, ~p"/api/posts/#{id}")
 
@@ -37,7 +37,7 @@ defmodule PostApiWeb.PostControllerTest do
                "id" => ^id,
                "body" => "some body",
                "title" => "some title"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["post"]
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -51,7 +51,7 @@ defmodule PostApiWeb.PostControllerTest do
 
     test "renders post when data is valid", %{conn: conn, post: %Post{id: id} = post} do
       conn = put(conn, ~p"/api/posts/#{post}", post: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      assert %{"id" => ^id} = json_response(conn, 200)["post"]
 
       conn = get(conn, ~p"/api/posts/#{id}")
 
@@ -59,7 +59,7 @@ defmodule PostApiWeb.PostControllerTest do
                "id" => ^id,
                "body" => "some updated body",
                "title" => "some updated title"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["post"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, post: post} do
@@ -75,9 +75,9 @@ defmodule PostApiWeb.PostControllerTest do
       conn = delete(conn, ~p"/api/posts/#{post}")
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
+      assert_error_sent(404, fn ->
         get(conn, ~p"/api/posts/#{post}")
-      end
+      end)
     end
   end
 
